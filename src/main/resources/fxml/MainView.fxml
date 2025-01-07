@@ -14,37 +14,55 @@
         <TextField fx:id="staffNameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
         <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="roleField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-        <Label text="ATSR:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <TextField fx:id="atsrField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Contract Type:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <ComboBox fx:id="contractTypeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-        <Label text="TS:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <TextField fx:id="tsField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-
-        <Label text="SA:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-        <TextField fx:id="saField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-
-        <Label text="Other:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-        <TextField fx:id="otherField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-
-        <Label text="TLR:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-        <TextField fx:id="tlrField" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-
-        <Button text="Add Workload" onAction="#addWorkload" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+        <Button text="Add Staff" onAction="#addStaff" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
     </GridPane>
 
-    <TableView fx:id="workloadTable">
+    <Separator/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Select Staff:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="staffComboBox" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <Label text="Activity Type:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <ComboBox fx:id="activityTypeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <TextField fx:id="activityDescriptionField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <Label text="Trimester:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <ComboBox fx:id="trimesterComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label text="Hours per Instance:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <TextField fx:id="hoursPerInstanceField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+        <Label text="Number of Instances:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+        <TextField fx:id="instancesField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+        <Button text="Add Activity" onAction="#addActivity" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+    </GridPane>
+
+    <TableView fx:id="activitiesTable">
         <columns>
-            <TableColumn fx:id="nameColumn" text="Staff Name"/>
+            <TableColumn fx:id="staffNameColumn" text="Staff Name"/>
             <TableColumn fx:id="roleColumn" text="Role"/>
-            <TableColumn fx:id="atsrColumn" text="ATSR"/>
-            <TableColumn fx:id="tsColumn" text="TS"/>
-            <TableColumn fx:id="saColumn" text="SA"/>
-            <TableColumn fx:id="otherColumn" text="Other"/>
-            <TableColumn fx:id="tlrColumn" text="TLR"/>
-            <TableColumn fx:id="totalColumn" text="Total"/>
+            <TableColumn fx:id="contractTypeColumn" text="Contract Type"/>
+            <TableColumn fx:id="typeColumn" text="Activity Type"/>
+            <TableColumn fx:id="descriptionColumn" text="Description"/>
+            <TableColumn fx:id="trimesterColumn" text="Trimester"/>
+            <TableColumn fx:id="hoursPerInstanceColumn" text="Hours/Instance"/>
+            <TableColumn fx:id="instancesColumn" text="Instances"/>
+            <TableColumn fx:id="totalHoursColumn" text="Total Hours"/>
         </columns>
     </TableView>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Label fx:id="totalHoursLabel" text="Total Hours: 0.00"/>
+        <Button text="Export to CSV" onAction="#exportToCSV"/>
+    </HBox>
 </VBox>
 

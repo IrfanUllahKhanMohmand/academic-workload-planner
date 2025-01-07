@@ -2,8 +2,8 @@ package com.university.model;
 
 import javafx.beans.property.*;
 
-public class AcademicWorkload {
-    private final StringProperty staffName = new SimpleStringProperty();
+public class Staff {
+    private final StringProperty name = new SimpleStringProperty();
     private final StringProperty role = new SimpleStringProperty();
     private final StringProperty contractType = new SimpleStringProperty();
     private final IntegerProperty atsr = new SimpleIntegerProperty();
@@ -12,23 +12,23 @@ public class AcademicWorkload {
     private final IntegerProperty sa = new SimpleIntegerProperty();
     private final IntegerProperty other = new SimpleIntegerProperty();
 
-    public AcademicWorkload(String staffName, String role, String contractType) {
-        this.staffName.set(staffName);
+    public Staff(String name, String role, String contractType) {
+        this.name.set(name);
         this.role.set(role);
         this.contractType.set(contractType);
     }
 
     // Getters and setters for all properties
-    public String getStaffName() {
-        return staffName.get();
+    public String getName() {
+        return name.get();
     }
 
-    public void setStaffName(String value) {
-        staffName.set(value);
+    public void setName(String value) {
+        name.set(value);
     }
 
-    public StringProperty staffNameProperty() {
-        return staffName;
+    public StringProperty nameProperty() {
+        return name;
     }
 
     public String getRole() {
@@ -117,5 +117,10 @@ public class AcademicWorkload {
 
     public int getTotal() {
         return getAtsr() + getTs() + getTlr() + getSa() + getOther();
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

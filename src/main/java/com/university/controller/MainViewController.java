@@ -1,144 +1,236 @@
 package com.university.controller;
 
-import com.university.model.AcademicWorkload;
-
-import javafx.beans.property.SimpleIntegerProperty;
+import com.university.model.Activity;
+import com.university.model.Staff;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MainViewController {
 
     @FXML
     private TextField staffNameField;
     @FXML
-    private ComboBox<String> roleComboBox;
+    private TextField roleField;
     @FXML
-    private TextField atsrField;
+    private ComboBox<String> contractTypeComboBox;
     @FXML
-    private TextField tsField;
+    private ComboBox<Staff> staffComboBox;
     @FXML
-    private TextField saField;
+    private ComboBox<String> activityTypeComboBox;
     @FXML
-    private TextField otherField;
+    private TextField activityDescriptionField;
     @FXML
-    private TextField tlrField;
+    private ComboBox<String> trimesterComboBox;
     @FXML
-    private TableView<AcademicWorkload> workloadTable;
+    private TextField hoursPerInstanceField;
     @FXML
-    private TableColumn<AcademicWorkload, String> nameColumn;
+    private TextField instancesField;
     @FXML
-    private TableColumn<AcademicWorkload, String> roleColumn;
+    private TableView<Activity> activitiesTable;
     @FXML
-    private TableColumn<AcademicWorkload, Integer> atsrColumn;
+    private TableColumn<Activity, String> staffNameColumn;
     @FXML
-    private TableColumn<AcademicWorkload, Integer> tsColumn;
+    private TableColumn<Activity, String> roleColumn;
     @FXML
-    private TableColumn<AcademicWorkload, Integer> saColumn;
+    private TableColumn<Activity, String> contractTypeColumn;
     @FXML
-    private TableColumn<AcademicWorkload, Integer> otherColumn;
+    private TableColumn<Activity, String> typeColumn;
     @FXML
-    private TableColumn<AcademicWorkload, Integer> tlrColumn;
+    private TableColumn<Activity, String> descriptionColumn;
     @FXML
-    private TableColumn<AcademicWorkload, Integer> totalColumn;
+    private TableColumn<Activity, String> trimesterColumn;
+    @FXML
+    private TableColumn<Activity, Double> hoursPerInstanceColumn;
+    @FXML
+    private TableColumn<Activity, Integer> instancesColumn;
+    @FXML
+    private TableColumn<Activity, Double> totalHoursColumn;
+    @FXML
+    private Label totalHoursLabel;
 
-    private ObservableList<AcademicWorkload> workloads = FXCollections.observableArrayList();
+    private ObservableList<Staff> staffList = FXCollections.observableArrayList();
+    private ObservableList<Activity> activities = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("staffName"));
-        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-        atsrColumn.setCellValueFactory(new PropertyValueFactory<>("atsr"));
-        tsColumn.setCellValueFactory(new PropertyValueFactory<>("ts"));
-        saColumn.setCellValueFactory(new PropertyValueFactory<>("sa"));
-        otherColumn.setCellValueFactory(new PropertyValueFactory<>("other"));
-        tlrColumn.setCellValueFactory(new PropertyValueFactory<>("tlr"));
-        totalColumn
-                .setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getTotal()).asObject());
+        contractTypeComboBox.getItems().addAll("Full-Time", "Part-Time");
+        activityTypeComboBox.getItems().addAll("ATSR", "TS", "TLR", "SA", "Other");
+        trimesterComboBox.getItems().addAll("Trimester 1", "Trimester 2", "Trimester 3", "All Year");
 
-        workloadTable.setItems(workloads);
+        staffNameColumn.setCellValueFactory(cellData -> cellData.getValue().getStaff().nameProperty());
+        roleColumn.setCellValueFactory(cellData -> cellData.getValue().getStaff().roleProperty());
+        contractTypeColumn.setCellValueFactory(cellData -> cellData.getValue().getStaff().contractTypeProperty());
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
+        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        trimesterColumn.setCellValueFactory(new PropertyValueFactory<>("trimester"));
+        hoursPerInstanceColumn.setCellValueFactory(new PropertyValueFactory<>("hoursPerInstance"));
+        instancesColumn.setCellValueFactory(new PropertyValueFactory<>("instances"));
+        totalHoursColumn.setCellValueFactory(new PropertyValueFactory<>("totalHours"));
 
-        roleComboBox.getItems().addAll("Lecturer", "Deputy Head of Subject", "Teaching and Research", "Reader",
-                "Professor");
-        roleComboBox.getSelectionModel().selectedItemProperty()
-                .addListener((obs, oldVal, newVal) -> updateFieldsBasedOnRole(newVal));
-    }
+        activitiesTable.setItems(activities);
+        staffComboBox.setItems(staffList);
 
-    private void updateFieldsBasedOnRole(String role) {
-        switch (role) {
-            case "Lecturer":
-                atsrField.setText("550");
-                tsField.setText("660");
-                saField.setText("188");
-                otherField.setText("172");
-                tlrField.setText("0");
-                break;
-            case "Deputy Head of Subject":
-                atsrField.setText("482");
-                tsField.setText("578");
-                saField.setText("188");
-                otherField.setText("322");
-                tlrField.setText("0");
-                break;
-            case "Teaching and Research":
-                atsrField.setText("450");
-                tsField.setText("540");
-                saField.setText("188");
-                otherField.setText("392");
-                tlrField.setText("0");
-                break;
-            case "Reader":
-                atsrField.setText("400");
-                tsField.setText("480");
-                saField.setText("188");
-                otherField.setText("502");
-                tlrField.setText("0");
-                break;
-            case "Professor":
-                atsrField.setText("350");
-                tsField.setText("420");
-                saField.setText("188");
-                otherField.setText("612");
-                tlrField.setText("0");
-                break;
-        }
+        activities.addListener(
+                (javafx.collections.ListChangeListener.Change<? extends Activity> c) -> updateTotalHours());
     }
 
     @FXML
-    private void addWorkload() {
-        try {
-            String name = staffNameField.getText();
-            String role = roleComboBox.getValue();
-            int atsr = Integer.parseInt(atsrField.getText());
-            int ts = Integer.parseInt(tsField.getText());
-            int sa = Integer.parseInt(saField.getText());
-            int other = Integer.parseInt(otherField.getText());
-            int tlr = Integer.parseInt(tlrField.getText());
+    private void addStaff() {
+        String name = staffNameField.getText();
+        String role = roleField.getText();
+        String contractType = contractTypeComboBox.getValue();
 
-            AcademicWorkload workload = new AcademicWorkload(name, role, atsr, ts, sa, other, tlr);
-            workloads.add(workload);
+        if (name.isEmpty() || role.isEmpty() || contractType == null) {
+            showAlert("Please fill in all staff fields.");
+            return;
+        }
 
-            clearFields();
-        } catch (NumberFormatException e) {
-            showAlert("Invalid input. Please enter valid numbers for all fields.");
+        Staff staff = new Staff(name, role, contractType);
+        staffList.add(staff);
+        staffComboBox.getSelectionModel().select(staff);
+
+        clearStaffFields();
+    }
+
+    @FXML
+    private void addActivity() {
+        Staff selectedStaff = staffComboBox.getValue();
+        String type = activityTypeComboBox.getValue();
+        String description = activityDescriptionField.getText();
+        String trimester = trimesterComboBox.getValue();
+
+        if (selectedStaff == null || type == null || description.isEmpty() || trimester == null ||
+                hoursPerInstanceField.getText().isEmpty() || instancesField.getText().isEmpty()) {
+            showAlert("Please fill in all activity fields.");
+            return;
+        }
+
+        double hoursPerInstance = Double.parseDouble(hoursPerInstanceField.getText());
+        int instances = Integer.parseInt(instancesField.getText());
+
+        Activity activity = new Activity(selectedStaff, type, description, trimester, hoursPerInstance, instances);
+        activities.add(activity);
+
+        updateStaffHours(selectedStaff, type, activity.getTotalHours());
+
+        clearActivityFields();
+    }
+
+    private void updateStaffHours(Staff staff, String activityType, double hours) {
+        switch (activityType) {
+            case "ATSR":
+                staff.setAtsr(staff.getAtsr() + (int) hours);
+                break;
+            case "TS":
+                staff.setTs(staff.getTs() + (int) hours);
+                break;
+            case "TLR":
+                staff.setTlr(staff.getTlr() + (int) hours);
+                break;
+            case "SA":
+                staff.setSa(staff.getSa() + (int) hours);
+                break;
+            case "Other":
+                staff.setOther(staff.getOther() + (int) hours);
+                break;
         }
     }
 
-    private void clearFields() {
+    private void clearStaffFields() {
         staffNameField.clear();
-        roleComboBox.getSelectionModel().clearSelection();
-        atsrField.clear();
-        tsField.clear();
-        saField.clear();
-        otherField.clear();
-        tlrField.clear();
+        roleField.clear();
+        contractTypeComboBox.getSelectionModel().clearSelection();
+    }
+
+    private void clearActivityFields() {
+        activityTypeComboBox.getSelectionModel().clearSelection();
+        activityDescriptionField.clear();
+        trimesterComboBox.getSelectionModel().clearSelection();
+        hoursPerInstanceField.clear();
+        instancesField.clear();
+    }
+
+    private void updateTotalHours() {
+        double total = activities.stream().mapToDouble(Activity::getTotalHours).sum();
+        totalHoursLabel.setText(String.format("Total Hours: %.2f", total));
+    }
+
+    @FXML
+    private void exportToCSV() {
+        if (activities.isEmpty()) {
+            showAlert("No activities to export.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Workload Summary");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(null);
+
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(
+                        "Staff Name,Role,Contract Type,Activity Type,Description,Trimester,Hours Per Instance,Instances,Total Hours\n");
+                for (Activity activity : activities) {
+                    Staff staff = activity.getStaff();
+                    writer.write(String.format("%s,%s,%s,%s,%s,%s,%.2f,%d,%.2f\n",
+                            staff.getName(),
+                            staff.getRole(),
+                            staff.getContractType(),
+                            activity.getType(),
+                            activity.getDescription(),
+                            activity.getTrimester(),
+                            activity.getHoursPerInstance(),
+                            activity.getInstances(),
+                            activity.getTotalHours()));
+                }
+
+                writer.write("\nStaff Summary\n");
+                for (Staff staff : staffList) {
+                    writer.write(String.format("%s,%s,%s,ATSR,%.2f,TS,%.2f,TLR,%.2f,SA,%.2f,Other,%.2f,Total,%.2f\n",
+                            staff.getName(),
+                            staff.getRole(),
+                            staff.getContractType(),
+                            (double) staff.getAtsr(),
+                            (double) staff.getTs(),
+                            (double) staff.getTlr(),
+                            (double) staff.getSa(),
+                            (double) staff.getOther(),
+                            (double) staff.getTotal()));
+                }
+
+                writer.write("\nOverall Summary\n");
+                Map<String, Double> totalsByType = activities.stream()
+                        .collect(Collectors.groupingBy(Activity::getType,
+                                Collectors.summingDouble(Activity::getTotalHours)));
+
+                for (Map.Entry<String, Double> entry : totalsByType.entrySet()) {
+                    writer.write(String.format("%s,%.2f\n", entry.getKey(), entry.getValue()));
+                }
+
+                writer.write(
+                        String.format("Total,%.2f\n", activities.stream().mapToDouble(Activity::getTotalHours).sum()));
+
+                showAlert("Workload summary exported successfully.");
+            } catch (IOException e) {
+                showAlert("Error exporting workload summary: " + e.getMessage());
+            }
+        }
     }
 
     private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
